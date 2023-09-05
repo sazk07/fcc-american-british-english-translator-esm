@@ -1,4 +1,5 @@
 import express from 'express'
+import 'dotenv/config'
 import path from 'path'
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
@@ -7,6 +8,9 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 import { indexRouter } from './routes/index.js';
 import createHttpError from 'http-errors';
 import { apiRoutes } from './routes/api.js';
+import cors from 'cors'
+import { emitter as runner } from './test-runner.js'
+import { router as fccTestingRoutes } from './routes/fcctesting.js'
 
 const app = express();
 
@@ -15,8 +19,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({ origin: '*' })); //For FCC testing purposes only
 
 app.use('/', indexRouter);
+app.use('/_api', fccTestingRoutes)
 app.use('/api', apiRoutes)
 
 // catch 404 and forward to error handler
@@ -36,6 +42,18 @@ app.use((err, req, res, next) => {
     error: err.message
   })
 })
+
+if (process.env.NODE_ENV === 'test') {
+  console.log('Running Tests...');
+  setTimeout(function() {
+    try {
+      runner.run();
+    } catch (error) {
+      console.log('Tests are not valid:');
+      console.error(error);
+    }
+  }, 1500);
+}
 
 export {
   app
