@@ -22,8 +22,8 @@ const translateHandler = async () => {
     errorArea.innerText = JSON.stringify(parsed)
     return
   }
-  translatedArea.innerText = parsed.translation
+  translatedArea.innerHTML = parsed.translation
   return
 }
 
-document.getElementById("tranlate-btn").addEventListener("click", translateHandler)
+document.getElementById("translate-btn").addEventListener("click", translateHandler)
